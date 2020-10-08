@@ -2,9 +2,10 @@
 const express = require('express');
 const cors = require('cors');
 const passport = require('passport');
+const db = require('./models');
 
 // import db instance
-const db = require('./config/db');
+// const db = require('./config/db');
 
 // initiate app instancd
 const app = express();
@@ -28,11 +29,12 @@ require('./config/auth.config')(passport);
 
 
 // run db
-db.authenticate()
-  .then(() => {
-    console.log("DB connected");
-  })
-  .catch((err) => console.log("Unable to connect"));
+db.sequelize.sync().then(() => console.log("DB is connected"))
+// db.authenticate()
+//   .then(() => {
+//     console.log("DB connected");
+//   })
+//   .catch((err) => console.log("Unable to connect"));
 
 // run routes
 app.use('/api' ,authRoutes);

@@ -1,5 +1,5 @@
 // import model
-const Quiz = require('../models/quiz');
+const { Quiz } = require('../models');
 const _ = require('lodash');
 
 // import validator
