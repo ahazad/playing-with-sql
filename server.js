@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 8000;
 const authRoutes = require('./api/auth.routes');
 const quizRoutes = require('./api/quiz.routes');
 const userRoutes = require("./api/user.routes");
+const leaderboardRoutes = require('./api/leaderboard.routes');
 
 
 // app config
@@ -41,6 +42,7 @@ db.sequelize.sync().then(() => console.log("DB is connected"))
 app.use('/api' ,authRoutes);
 app.use('/api', quizRoutes);
 app.use('/api', userRoutes);
+app.use('/api', leaderboardRoutes);
 
 
 // spin up server

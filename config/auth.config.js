@@ -1,6 +1,6 @@
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
-const Admin = require('../models/admin');
+const {Admin, User} = require('../models');
 
 require("dotenv").config();
 
@@ -11,25 +11,24 @@ opts.secretOrKey = process.env.JWT_SECRET_KEY;
 module.exports = (passport) => {
   passport.use(
     new JwtStrategy(opts, async (jwt_payload, done) => {
-      const adminId = jwt_payload.id;
+      const id = jwt_payload.id;
       try {
-
-        const admin = await Admin.findOne({raw: true, where: {id: adminId}});
-        // let user;
-        // let {userType} = jwt_payload;
+        console.log(jwt_payload)
+        let user;
+        let {userType} = jwt_payload;
         // find and attach user info conditionaly
-        // if(userType === 'customer') {
-        //   user = await db.collection("customer").findOne({ _id: con.ObjectID(userId) });
-        // } else if(userType === 'dealer') {
-        //   user = await db.collection('dealer').findOne({_id: new con.ObjectID(userId)});
-        // }
+        if(userType === 'admin') {
+          user = await Admin.findOne({raw: true, where: {id: id}});
+        } else if(userType === 'user') {
+          user = await User.findOne({raw: true, where: {id: id}});;
+        }
 
-        // user = {
-        //   userType,
-        //   ...user
-        // }
-        
-        if (admin) return done(null, admin);
+        user = {
+          userType,
+          ...user
+        }
+  
+        if (user) return done(null, user);
         return done(null, false);
       } catch (error) {
         console.log(error);

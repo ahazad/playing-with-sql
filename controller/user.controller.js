@@ -1,15 +1,27 @@
-const { User } = require('../models');
+const {Quiz, User} = require('../models');
 
-exports.loginUser = async(req, res) => {
+exports.getResult = async (req, res) => {
   try {
-    let { username } = req.body;
 
-    const isExist = await User.findOne({where: {username: username}});
+    // await User.drop();
+    // res.send("droped")
+    const answers = req.body;
+    const {username} = req.user;
 
-    if(!isExist) await User.create({username});
+    const quiz = await Quiz.findAll({
+      attributes: ['id', 'answer'],
+      raw: true,
+    });
 
-    return res.json({success: "Welcome to the quiz"});
+    const scores = quiz.filter(q => {
+      return answers.some(a => q.id === a.id && q.answer === a.answer)
+    }).length;
+   
+    const user = await User.findOne({where: {username: username}})
+    user.score = scores;
+    await user.save();
 
+    return res.json({scores})
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });

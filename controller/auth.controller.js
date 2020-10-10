@@ -1,5 +1,5 @@
 // import model
-const {Admin} = require("../models");
+const { Admin, User } = require("../models");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
@@ -36,7 +36,7 @@ exports.postAdminLogin = async (req, res) => {
       }
 
       // token validity : 2 hours
-      const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: 2 * 3600})
+      const token = jwt.sign(payload, process.env.JWT_SECRET_KEY)
 
       return res.json({
         success: "Admin logged in successfully",
@@ -45,5 +45,34 @@ exports.postAdminLogin = async (req, res) => {
     } catch (error) {
       console.log(error);
     }
-   
+}
+
+
+exports.loginUser = async(req, res) => {
+  try {
+    let { username } = req.body;
+    let user;
+
+    user = await User.findOne({where: {username: username}, raw: true});
+
+    if(!user) {
+      await User.create({username: username});
+      user = await User.findOne({where: {username: username}, raw: true})
+    } 
+
+    const payload = {
+      ...user,
+      userType: 'user'
+    }
+    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY)
+
+    return res.json({
+      success: "User logged in successfully",
+      token: `Bearer ${token}`
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
 }
